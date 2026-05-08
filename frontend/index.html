@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medicine Finder</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <header>
+    <div class="logo">💊 MediFind</div>
+    <nav>
+      <a href="#search">Search</a>
+      <a href="#pharmacies">Pharmacies</a>
+      <a href="#emergency">Emergency</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Find Your Medicine<br/>Near You — Instantly</h1>
+    <p>Search medicines and find nearby pharmacies with live stock availability</p>
+    <div class="search-box">
+      <input type="text" id="medicineInput" placeholder="Search medicine name... (e.g. Paracetamol)" />
+      <button onclick="searchMedicine()">🔍 Search</button>
+    </div>
+  </section>
+
+  <section id="search" class="section">
+    <h2>Search Results</h2>
+    <div id="searchResults" class="cards-grid">
+      <p class="placeholder">Search for a medicine above to see results</p>
+    </div>
+  </section>
+
+  <section id="pharmacies" class="section dark">
+    <h2>Nearby Pharmacies</h2>
+    <button class="btn-outline" onclick="loadPharmacies()">📍 Show Nearby Pharmacies</button>
+    <div id="pharmacyList" class="cards-grid"></div>
+  </section>
+
+  <section id="emergency" class="section">
+    <h2>🚨 Emergency Medicine Request</h2>
+    <p>Can't find your medicine? Send an emergency request to all nearby pharmacies!</p>
+    <div class="emergency-form">
+      <input type="text" id="emergencyMedicine" placeholder="Medicine name" />
+      <input type="text" id="emergencyName" placeholder="Your name" />
+      <input type="text" id="emergencyPhone" placeholder="Your phone number" />
+      <button class="btn-emergency" onclick="sendEmergency()">🚨 Send Emergency Request</button>
+    </div>
+    <div id="emergencyMsg"></div>
+  </section>
+
+  <footer>
+    <p>💊 MediFind — Saving lives, one search at a time</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
