@@ -183,3 +183,110 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') searchMedicine();
   });
 });
+// AUTH FUNCTIONS
+function showLogin() {
+  closeModals();
+  document.getElementById('loginModal').style.display = 'flex';
+}
+
+function showRegister() {
+  closeModals();
+  document.getElementById('registerModal').style.display = 'flex';
+}
+
+function closeModals() {
+  document.getElementById('loginModal').style.display = 'none';
+  document.getElementById('registerModal').style.display = 'none';
+}
+
+async function register() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+  const role = document.getElementById('regRole').value;
+
+  if (!name || !email || !password) {
+    document.getElementById('registerMsg').style.color = 'red';
+    document.getElementById('registerMsg').textContent = 'Please fill all fields!';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById('registerMsg').style.color = 'red';
+      document.getElementById('registerMsg').textContent = data.error;
+    } else {
+      document.getElementById('registerMsg').style.color = 'green';
+      document.getElementById('registerMsg').textContent = data.message;
+      setTimeout(() => showLogin(), 1500);
+    }
+  } catch (err) {
+    document.getElementById('registerMsg').textContent = 'Error: ' + err.message;
+  }
+}
+
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (!email || !password) {
+    document.getElementById('loginMsg').textContent = 'Please fill all fields!';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById('loginMsg').textContent = data.error;
+    } else {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userName', data.user.name);
+      closeModals();
+      updateAuthUI();
+    }
+  } catch (err) {
+    document.getElementById('loginMsg').textContent = 'Error: ' + err.message;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userName');
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const token = localStorage.getItem('token');
+  const name = localStorage.getItem('userName');
+
+  if (token) {
+    document.getElementById('authButtons').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'flex';
+    document.getElementById('userInfo').style.alignItems = 'center';
+    document.getElementById('userName').textContent = `👋 ${name}`;
+  } else {
+    document.getElementById('authButtons').style.display = 'flex';
+    document.getElementById('userInfo').style.display = 'none';
+  }
+}
+
+// Check login on page load
+document.addEventListener('DOMContentLoaded', () => {
+  updateAuthUI();
+  document.getElementById('medicineInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchMedicine();
+  });
+});

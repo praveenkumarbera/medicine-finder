@@ -16,8 +16,47 @@
       <a href="#pharmacies">Pharmacies</a>
       <a href="#map">Map</a>
       <a href="#emergency">Emergency</a>
+      <div id="authButtons">
+        <button class="btn-login" onclick="showLogin()">Login</button>
+        <button class="btn-register" onclick="showRegister()">Register</button>
+      </div>
+      <div id="userInfo" style="display:none">
+        <span id="userName" style="color:white;margin-right:12px"></span>
+        <button class="btn-login" onclick="logout()">Logout</button>
+      </div>
     </nav>
   </header>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal" style="display:none">
+    <div class="modal-box">
+      <h2>🔐 Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button class="btn-emergency" onclick="login()">Login</button>
+      <p id="loginMsg" style="color:red;margin-top:8px"></p>
+      <p style="margin-top:12px">No account? <a href="#" onclick="showRegister()">Register here</a></p>
+      <button class="close-btn" onclick="closeModals()">✕</button>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div id="registerModal" class="modal" style="display:none">
+    <div class="modal-box">
+      <h2>📝 Register</h2>
+      <input type="text" id="regName" placeholder="Full name" />
+      <input type="email" id="regEmail" placeholder="Email" />
+      <input type="password" id="regPassword" placeholder="Password" />
+      <select id="regRole">
+        <option value="user">I am a Patient</option>
+        <option value="pharmacy">I am a Pharmacy</option>
+      </select>
+      <button class="btn-emergency" onclick="register()">Create Account</button>
+      <p id="registerMsg" style="margin-top:8px"></p>
+      <p style="margin-top:12px">Have account? <a href="#" onclick="showLogin()">Login here</a></p>
+      <button class="close-btn" onclick="closeModals()">✕</button>
+    </div>
+  </div>
 
   <section class="hero">
     <h1>Find Your Medicine<br/>Near You — Instantly</h1>
@@ -41,7 +80,6 @@
     <div id="pharmacyList" class="cards-grid"></div>
   </section>
 
-  <!-- MAP SECTION -->
   <section id="map" class="section">
     <h2>🗺️ Pharmacy Map</h2>
     <p>See all nearby pharmacies on the map</p>
