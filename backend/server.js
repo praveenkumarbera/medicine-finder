@@ -51,3 +51,12 @@ mongoose.connect(process.env.MONGO_URI)
     });
   })
   .catch(err => console.log('❌ MongoDB Error:', err));
+  // Keep alive ping every 14 minutes
+const https = require('https');
+setInterval(() => {
+  https.get('https://medicine-finder-gvri.onrender.com', (res) => {
+    console.log('Keep alive ping sent:', res.statusCode);
+  }).on('error', (err) => {
+    console.log('Keep alive error:', err.message);
+  });
+}, 14 * 60 * 1000);
