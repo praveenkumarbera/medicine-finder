@@ -26,6 +26,7 @@ app.use('/api/medicines', require('./routes/medicines'));
 app.use('/api/pharmacies', require('./routes/pharmacies'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/ai', require('./routes/ai'));
 // Root - Send Frontend
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
