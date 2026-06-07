@@ -17,14 +17,7 @@ router.post('/recommend', async (req, res) => {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are a helpful medical assistant. A patient has the following symptoms: "${symptoms}". 
-              Please suggest common over-the-counter medicines that might help. 
-              Format your response clearly with:
-              1. Medicine name
-              2. What it helps with
-              3. Dosage advice
-              Always end with: "⚠️ This is for informational purposes only. Please consult a doctor before taking any medicine."
-              Keep response concise and in simple English.`
+              text: `You are a helpful medical assistant. A patient has the following symptoms: "${symptoms}". Please suggest common over-the-counter medicines that might help. Format your response clearly with medicine name, what it helps with, and dosage advice. Always end with: "⚠️ This is for informational purposes only. Please consult a doctor before taking any medicine." Keep response concise and in simple English.`
             }]
           }]
         })
@@ -32,10 +25,20 @@ router.post('/recommend', async (req, res) => {
     );
 
     const data = await response.json();
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    if (!data.candidates || data.candidates.length === 0) {
+      return res.status(500).json({ error: 'No response from AI. Try again!' });
+    }
+
     const recommendation = data.candidates[0].content.parts[0].text;
     res.json({ recommendation });
 
   } catch (err) {
+    console.error('AI error:', err);
     res.status(500).json({ error: err.message });
   }
 });
