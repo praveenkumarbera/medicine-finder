@@ -9,20 +9,27 @@ router.post('/recommend', async (req, res) => {
       return res.status(400).json({ error: 'Please provide symptoms!' });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are a helpful medical assistant. A patient has the following symptoms: "${symptoms}". Please suggest common over-the-counter medicines that might help. Format your response clearly with medicine name, what it helps with, and dosage advice. Always end with: "⚠️ This is for informational purposes only. Please consult a doctor before taking any medicine." Keep response concise and in simple English.`
-            }]
-          }]
-        })
-      }
-    );
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama3-8b-8192',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful medical assistant. Suggest common over-the-counter medicines for symptoms. Always end with a disclaimer to consult a doctor.'
+          },
+          {
+            role: 'user',
+            content: `I have the following symptoms: ${symptoms}. What medicines can help?`
+          }
+        ],
+        max_tokens: 500
+      })
+    });
 
     const data = await response.json();
 
@@ -30,11 +37,7 @@ router.post('/recommend', async (req, res) => {
       return res.status(500).json({ error: data.error.message });
     }
 
-    if (!data.candidates || data.candidates.length === 0) {
-      return res.status(500).json({ error: 'No response from AI. Try again!' });
-    }
-
-    const recommendation = data.candidates[0].content.parts[0].text;
+    const recommendation = data.choices[0].message.content;
     res.json({ recommendation });
 
   } catch (err) {
