@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MediFind</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
-  <header>
+  <header class="header">
     <div class="header-inner">
       <div class="logo">🏥 MediFind</div>
-      <nav class="nav-links">
+      <nav class="desktop-nav">
         <a href="#search-section">Search</a>
         <a href="#pharmacies-section">Pharmacies</a>
         <a href="#map-section">Map</a>
@@ -23,72 +23,76 @@
   </header>
 
   <section class="hero">
-    <h1>Find medicines.<br>Find pharmacies.<br><span style="color:#fbbf24;">Instantly.</span></h1>
-    <p>Search by name or describe symptoms — we'll do the rest.</p>
-    <div class="search-box" id="search-section">
-      <input type="text" id="searchInput" placeholder="Search medicine (e.g. Dolo 650, Pan 40...)" />
-      <button onclick="searchMedicine()">Search</button>
+    <div class="hero-inner">
+      <h1>Find medicines.<br>Find pharmacies.<br><span class="hero-accent">Instantly.</span></h1>
+      <p class="hero-sub">Search by name or describe symptoms — we'll do the rest.</p>
+      <div class="search-box" id="search-section">
+        <input type="text" id="searchInput" placeholder="Search medicine (e.g. Dolo 650, Pan 40...)" />
+        <button onclick="searchMedicine()">Search</button>
+      </div>
     </div>
   </section>
 
-  <main>
+  <main style="max-width:1100px;margin:0 auto;padding:0 20px;">
 
-    <section class="section ai-section" id="ai-section">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-        <div style="width:44px;height:44px;background:#fef3c7;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">🤖</div>
-        <div>
-          <div style="font-weight:700;font-size:16px;">AI Symptom Checker</div>
-          <div style="font-size:13px;color:#6b7280;">Describe how you feel — get medicine suggestions instantly</div>
+    <section class="ai-section" id="ai-section" style="margin:24px 0;border-radius:16px;">
+      <div class="ai-inner">
+        <div class="ai-header">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <h2>AI Symptom Checker</h2>
+            <p>Describe how you feel — get medicine suggestions instantly</p>
+          </div>
         </div>
-      </div>
-      <div class="ai-input-row">
-        <input type="text" id="symptomInput" placeholder="e.g. I have fever, headache and body pain since yesterday..." />
-        <button onclick="checkSymptoms()">Ask AI →</button>
-      </div>
-      <div class="ai-result" id="aiResult" style="display:none;"></div>
-    </section>
-
-    <section class="section" id="category-section">
-      <div style="font-size:11px;font-weight:600;color:#9ca3af;letter-spacing:1px;margin-bottom:12px;">BROWSE BY CATEGORY</div>
-      <div class="filter-row" id="categoryRow">
-        <button class="filter-pill active" onclick="filterByCategory('All', this)">All</button>
-        <button class="filter-pill" onclick="filterByCategory('Painkiller', this)">🎯 Painkillers</button>
-        <button class="filter-pill" onclick="filterByCategory('Cold & Flu', this)">🤧 Cold &amp; Flu</button>
-        <button class="filter-pill" onclick="filterByCategory('Digestive', this)">💊 Digestive</button>
-        <button class="filter-pill" onclick="filterByCategory('Vitamins', this)">✨ Vitamins</button>
-        <button class="filter-pill" onclick="filterByCategory('Skin', this)">🧴 Skin</button>
-        <button class="filter-pill" onclick="filterByCategory('Allergy', this)">🌿 Allergy</button>
-        <button class="filter-pill" onclick="filterByCategory('Antibiotic', this)">🔬 Antibiotic</button>
-        <button class="filter-pill" onclick="filterByCategory('First Aid', this)">🩹 First Aid</button>
-        <button class="filter-pill" onclick="filterByCategory('Cardiac', this)">❤️ Cardiac</button>
-        <button class="filter-pill" onclick="filterByCategory('Diabetes', this)">🩸 Diabetes</button>
-        <button class="filter-pill" onclick="filterByCategory('Sleep', this)">😴 Sleep</button>
+        <div class="ai-input-row">
+          <textarea id="symptomInput" rows="2" placeholder="e.g. I have fever, headache and body pain since yesterday..."></textarea>
+          <button class="ai-btn" onclick="checkSymptoms()">Ask AI →</button>
+        </div>
+        <div class="ai-result" id="aiResult" style="display:none;"></div>
       </div>
     </section>
 
-    <section class="section" id="results-section" style="display:none;">
-      <h2 class="section-title">Search Results</h2>
+    <section style="background:white;border-radius:16px;padding:20px 24px;margin:24px 0;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1px;margin-bottom:14px;">BROWSE BY CATEGORY</div>
+      <div class="filter-row" id="categoryRow" style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="filter-pill active" onclick="filterByCategory('All',this)">All</button>
+        <button class="filter-pill" onclick="filterByCategory('Painkiller',this)">🎯 Painkillers</button>
+        <button class="filter-pill" onclick="filterByCategory('Cold & Flu',this)">🤧 Cold &amp; Flu</button>
+        <button class="filter-pill" onclick="filterByCategory('Digestive',this)">💊 Digestive</button>
+        <button class="filter-pill" onclick="filterByCategory('Vitamins',this)">✨ Vitamins</button>
+        <button class="filter-pill" onclick="filterByCategory('Skin',this)">🧴 Skin</button>
+        <button class="filter-pill" onclick="filterByCategory('Allergy',this)">🌿 Allergy</button>
+        <button class="filter-pill" onclick="filterByCategory('Antibiotic',this)">🔬 Antibiotic</button>
+        <button class="filter-pill" onclick="filterByCategory('First Aid',this)">🩹 First Aid</button>
+        <button class="filter-pill" onclick="filterByCategory('Cardiac',this)">❤️ Cardiac</button>
+        <button class="filter-pill" onclick="filterByCategory('Diabetes',this)">🩸 Diabetes</button>
+        <button class="filter-pill" onclick="filterByCategory('Sleep',this)">😴 Sleep</button>
+      </div>
+    </section>
+
+    <section id="results-section" style="display:none;background:white;border-radius:16px;padding:24px;margin:24px 0;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:16px;">Search Results</h2>
       <div id="results-container"></div>
       <div id="related-section" style="display:none;margin-top:24px;">
-        <h3 class="related-title">You may also need</h3>
-        <div class="filter-row" id="filterRow"></div>
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;color:#374151;">You may also need</h3>
+        <div class="filter-row" id="filterRow" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;"></div>
         <div class="related-grid" id="relatedGrid"></div>
       </div>
     </section>
 
-    <section class="section" id="pharmacies-section">
-      <h2 class="section-title">📍 Nearby Pharmacies</h2>
+    <section id="pharmacies-section" style="background:white;border-radius:16px;padding:24px;margin:24px 0;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:16px;">📍 Nearby Pharmacies</h2>
       <button id="findPharmBtn" class="btn-outline" onclick="findNearbyPharmacies()">📍 Show Nearby Pharmacies</button>
       <div id="pharmacies-container" class="pharmacies-grid" style="margin-top:16px;"></div>
     </section>
 
-    <section class="section" id="map-section">
-      <h2 class="section-title">🗺 Pharmacy Map</h2>
-      <div id="map-container" style="width:100%;height:420px;border-radius:16px;margin-top:12px;"></div>
+    <section id="map-section" style="background:white;border-radius:16px;padding:24px;margin:24px 0;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:16px;">🗺 Pharmacy Map</h2>
+      <div id="map-container" style="width:100%;height:420px;border-radius:12px;"></div>
     </section>
 
-    <section class="section emergency-section" id="emergency-section">
-      <h2 class="section-title">🚨 Emergency Contacts</h2>
+    <section id="emergency-section" style="background:white;border-radius:16px;padding:24px;margin:24px 0;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:16px;">🚨 Emergency Contacts</h2>
       <div class="emergency-grid">
         <div class="emergency-card">
           <div class="em-icon">🚑</div>
@@ -110,7 +114,7 @@
 
   </main>
 
-  <footer>
+  <footer style="text-align:center;padding:24px;color:#9ca3af;font-size:0.85rem;">
     <p>© 2024 MediFind. For informational purposes only.</p>
   </footer>
 
