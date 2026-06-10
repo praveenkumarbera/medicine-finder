@@ -26,19 +26,19 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  socket.on('stockUpdated', (data) => io.emit('stockChanged', data));
+  socket.on('stockUpdated', (data) => { io.emit('stockChanged', data); });
 });
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    console.log('MongoDB Connected!');
+    console.log('✅ MongoDB Connected!');
     server.listen(process.env.PORT || 3000, () => {
-      console.log('Server running on port', process.env.PORT || 3000);
+      console.log('✅ Server running!');
     });
   })
-  .catch(err => console.log('MongoDB Error:', err));
+  .catch(err => console.log('❌ MongoDB Error:', err));
 
 const https = require('https');
 setInterval(() => {
-  https.get('https://medicine-finder-gvri.onrender.com', () => {}).on('error', () => {});
+  https.get('https://medicine-finder-gvri.onrender.com', ()=>{}).on('error',()=>{});
 }, 14 * 60 * 1000);

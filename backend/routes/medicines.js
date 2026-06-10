@@ -17,7 +17,7 @@ router.get('/category', async (req, res) => {
   try {
     const cat = String(req.query.cat || '').trim();
     if (!cat || cat.toLowerCase() === 'all') {
-      return res.json(await Medicine.find().limit(50));
+      return res.json(await Medicine.find().limit(60));
     }
     res.json(await Medicine.find({ category: { $regex: cat, $options: 'i' } }));
   } catch (err) {
