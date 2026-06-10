@@ -6,10 +6,11 @@
   <title>MediFind</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrJtrmqBn_f0HJcqLr-y6SHGRxxoIysDc&libraries=places&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrJtrmqBn_f0HJcqLr-y6SHGRxxoIysDc&callback=initMap" async defer></script>
 </head>
 <body>
 
+  <!-- HEADER / NAV -->
   <header>
     <div class="header-inner">
       <div class="logo">🏥 MediFind</div>
@@ -23,9 +24,12 @@
     </div>
   </header>
 
+  <!-- HERO -->
   <section class="hero">
     <h1>Find Your Medicine<br>Near You — Instantly</h1>
     <p>Search medicines and find nearby pharmacies with live stock availability</p>
+
+    <!-- SEARCH BAR -->
     <div class="search-box" id="search-section">
       <input type="text" id="searchInput" placeholder="Search medicine (e.g. Dolo 650, Pan 40...)" />
       <button onclick="searchMedicine()">🔍 Search</button>
@@ -34,6 +38,7 @@
 
   <main>
 
+    <!-- AI SYMPTOM CHECKER — always visible, top of main -->
     <section class="section ai-section" id="ai-section">
       <h2 class="section-title">✨ AI Symptom Checker</h2>
       <p class="section-sub">Describe your symptoms and get medicine suggestions</p>
@@ -44,9 +49,12 @@
       <div class="ai-result" id="aiResult"></div>
     </section>
 
+    <!-- SEARCH RESULTS — shown only after search -->
     <section class="section" id="results-section" style="display:none;">
       <h2 class="section-title">Search Results</h2>
       <div id="results-container"></div>
+
+      <!-- RELATED MEDICINES — shown only when result found -->
       <div id="related-section" style="display:none; margin-top: 24px;">
         <h3 class="related-title">You may also need</h3>
         <div class="filter-row" id="filterRow"></div>
@@ -54,12 +62,14 @@
       </div>
     </section>
 
+    <!-- NEARBY PHARMACIES — always visible -->
     <section class="section" id="pharmacies-section">
       <h2 class="section-title">📍 Nearby Pharmacies</h2>
-      <button id="findPharmBtn" class="btn-outline" onclick="findNearbyPharmacies()">📍 Show Nearby Pharmacies</button>
+      <button class="btn-outline" onclick="findNearbyPharmacies()">📍 Show Nearby Pharmacies</button>
       <div id="pharmacies-container" class="pharmacies-grid"></div>
     </section>
 
+    <!-- MAP — always visible -->
     <section class="section" id="map-section">
       <h2 class="section-title">🗺 Pharmacy Map</h2>
       <p class="section-sub">See all nearby pharmacies on the map</p>
@@ -67,6 +77,7 @@
       <div id="map-container" style="height:400px; border-radius:12px; overflow:hidden; display:none;"></div>
     </section>
 
+    <!-- EMERGENCY -->
     <section class="section emergency-section" id="emergency-section">
       <h2 class="section-title">🚨 Emergency Contacts</h2>
       <div class="emergency-grid">
