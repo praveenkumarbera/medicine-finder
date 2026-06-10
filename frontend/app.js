@@ -9,15 +9,15 @@ function toggleMobileMenu() {
 
 async function filterCategory(cat) {
   document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
+  if(event && event.target) event.target.classList.add('active');
   const container = document.getElementById('searchResults');
   container.innerHTML = '<p>Loading...</p>';
   try {
-    const url = cat === 'all' ? `${API}/medicines/search?name=` : `${API}/medicines/search?name=${encodeURIComponent(cat)}`;
-    const res = await fetch(`${API}/medicines/category?cat=${encodeURIComponent(cat)}`);
-    const medicines = cat === 'all' ? allMedicines : await res.json();
+    const query = cat === 'all' ? '' : cat;
+    const res = await fetch(`${API}/medicines/search?name=${encodeURIComponent(query)}`);
+    const medicines = await res.json();
     if (!medicines || !medicines.length) {
-      container.innerHTML = '<p class="placeholder-text">No medicines found in this category.</p>';
+      container.innerHTML = '<p class="placeholder-text">No medicines in this category.</p>';
       return;
     }
     renderMedicines(medicines, container);
