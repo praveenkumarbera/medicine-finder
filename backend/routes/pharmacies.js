@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const CHENNAI_PHARMACIES = [
+const PHARMACIES = [
   { name:'Apollo Pharmacy - Anna Nagar', address:'Anna Nagar, Chennai', phone:'044-26161234', lat:13.0891, lng:80.2107 },
   { name:'Apollo Pharmacy - T Nagar', address:'T Nagar, Chennai', phone:'044-28341234', lat:13.0418, lng:80.2341 },
   { name:'Apollo Pharmacy - Adyar', address:'Adyar, Chennai', phone:'044-24421234', lat:13.0012, lng:80.2565 },
@@ -20,23 +20,19 @@ function getDistKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-router.get('/nearby', async (req, res) => {
-  try {
-    const { lat, lng } = req.query;
-    if (!lat || !lng) return res.status(400).json({ error: 'lat and lng required' });
-    const userLat = parseFloat(lat);
-    const userLng = parseFloat(lng);
-    const pharmacies = CHENNAI_PHARMACIES
-      .map(p => ({ ...p, distance: getDistKm(userLat, userLng, p.lat, p.lng) }))
-      .sort((a, b) => a.distance - b.distance);
-    res.json(pharmacies);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+router.get('/nearby', (req, res) => {
+  const { lat, lng } = req.query;
+  if (!lat || !lng) return res.status(400).json({ error: 'lat and lng required' });
+  const userLat = parseFloat(lat);
+  const userLng = parseFloat(lng);
+  const result = PHARMACIES
+    .map(p => ({ ...p, distance: getDistKm(userLat, userLng, p.lat, p.lng) }))
+    .sort((a, b) => a.distance - b.distance);
+  res.json(result);
 });
 
 module.exports = router;

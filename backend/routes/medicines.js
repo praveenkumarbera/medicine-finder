@@ -4,7 +4,8 @@ const Medicine = require('../models/Medicine');
 
 router.get('/search', async (req, res) => {
   try {
-    const q = req.query.q || req.query.name || '';
+    const q = (req.query.q || req.query.name || '').trim();
+    if (!q) return res.json([]);
     const medicines = await Medicine.find({
       name: { $regex: q, $options: 'i' }
     });
