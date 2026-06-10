@@ -5,190 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MediFind</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
-  <header class="header">
+
+  <header>
     <div class="header-inner">
-      <div class="logo">💊 MediFind</div>
-      <nav class="desktop-nav">
-        <a href="#search">Search</a>
-        <a href="#pharmacies">Pharmacies</a>
-        <a href="#map">Map</a>
-        <a href="#emergency">Emergency</a>
-        <div id="authButtons" class="auth-btns">
-          <button class="btn-login" onclick="showLogin()">Login</button>
-          <button class="btn-register" onclick="showRegister()">Register</button>
-        </div>
-        <div id="userInfo" style="display:none;align-items:center;gap:10px">
-          <span id="userName" class="user-name"></span>
-          <button class="btn-login" onclick="logout()">Logout</button>
-        </div>
+      <div class="logo">🏥 MediFind</div>
+      <nav class="nav-links">
+        <a href="#search-section">Search</a>
+        <a href="#pharmacies-section">Pharmacies</a>
+        <a href="#map-section">Map</a>
+        <a href="#ai-section">AI Suggest</a>
+        <a href="#emergency-section">Emergency</a>
       </nav>
-      <div class="mobile-actions">
-        <div id="mobileAuthBtns">
-          <button class="btn-login" onclick="showLogin()">Login</button>
-        </div>
-        <div id="mobileUserInfo" style="display:none">
-          <span id="mobileUserName" class="user-name"></span>
-        </div>
-        <button class="three-dots-btn" onclick="toggleMobileMenu()">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </div>
-    <div id="mobileMenu" class="mobile-menu" style="display:none">
-      <div class="mobile-menu-section">
-        <p class="mobile-menu-label">Filter by Category</p>
-        <div class="mobile-category-grid">
-          <button class="cat-pill" onclick="filterCategory('all');toggleMobileMenu()">All</button>
-          <button class="cat-pill" onclick="filterCategory('Painkiller');toggleMobileMenu()">💊 Painkillers</button>
-          <button class="cat-pill" onclick="filterCategory('Cold & Flu');toggleMobileMenu()">🤧 Cold & Flu</button>
-          <button class="cat-pill" onclick="filterCategory('Digestive');toggleMobileMenu()">🫃 Digestive</button>
-          <button class="cat-pill" onclick="filterCategory('Vitamins');toggleMobileMenu()">🌟 Vitamins</button>
-          <button class="cat-pill" onclick="filterCategory('Skin');toggleMobileMenu()">🧴 Skin</button>
-          <button class="cat-pill" onclick="filterCategory('Antihistamine');toggleMobileMenu()">🌿 Allergy</button>
-          <button class="cat-pill" onclick="filterCategory('Antibiotic');toggleMobileMenu()">🔬 Antibiotic</button>
-          <button class="cat-pill" onclick="filterCategory('First Aid');toggleMobileMenu()">🩹 First Aid</button>
-          <button class="cat-pill" onclick="filterCategory('Cardiac');toggleMobileMenu()">❤️ Cardiac</button>
-          <button class="cat-pill" onclick="filterCategory('Diabetes');toggleMobileMenu()">🩸 Diabetes</button>
-          <button class="cat-pill" onclick="filterCategory('Sleep');toggleMobileMenu()">😴 Sleep</button>
-        </div>
-      </div>
-      <div class="mobile-menu-section">
-        <p class="mobile-menu-label">Navigate</p>
-        <a href="#search" onclick="toggleMobileMenu()" class="mobile-nav-link">🔍 Search</a>
-        <a href="#pharmacies" onclick="toggleMobileMenu()" class="mobile-nav-link">🏪 Pharmacies</a>
-        <a href="#map" onclick="toggleMobileMenu()" class="mobile-nav-link">🗺️ Map</a>
-        <a href="#emergency" onclick="toggleMobileMenu()" class="mobile-nav-link">🚨 Emergency</a>
-        <div id="mobileLogout" style="display:none">
-          <button style="background:none;border:none;color:#e53935;font-size:0.95rem;cursor:pointer;padding:10px 0;width:100%;text-align:left" onclick="logout();toggleMobileMenu()">🚪 Logout</button>
-        </div>
-      </div>
     </div>
   </header>
 
-  <div id="loginModal" class="modal" style="display:none">
-    <div class="modal-box">
-      <button class="close-btn" onclick="closeModals()">✕</button>
-      <h2>🔐 Login</h2>
-      <input type="email" id="loginEmail" placeholder="Email" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-      <button class="btn-primary" onclick="login()">Login</button>
-      <p id="loginMsg" style="color:red;font-size:0.85rem"></p>
-      <p class="modal-footer-text">No account? <a href="#" onclick="showRegister()">Register here</a></p>
-    </div>
-  </div>
-
-  <div id="registerModal" class="modal" style="display:none">
-    <div class="modal-box">
-      <button class="close-btn" onclick="closeModals()">✕</button>
-      <h2>📝 Register</h2>
-      <input type="text" id="regName" placeholder="Full name" />
-      <input type="email" id="regEmail" placeholder="Email" />
-      <input type="password" id="regPassword" placeholder="Password" />
-      <select id="regRole">
-        <option value="user">I am a Patient</option>
-        <option value="pharmacy">I am a Pharmacy</option>
-      </select>
-      <button class="btn-primary" onclick="register()">Create Account</button>
-      <p id="registerMsg" style="font-size:0.85rem"></p>
-      <p class="modal-footer-text">Have account? <a href="#" onclick="showLogin()">Login here</a></p>
-    </div>
-  </div>
-
   <section class="hero">
-    <div class="hero-inner">
-      <h1>Find medicines.<br/>Find pharmacies.<br/><span class="hero-accent">Instantly.</span></h1>
-      <p class="hero-sub">Search by name or describe symptoms — we'll do the rest.</p>
-      <div class="search-box">
-        <input type="text" id="medicineInput" placeholder="e.g. Dolo 650, Paracetamol..." autocomplete="off"/>
-        <button onclick="searchMedicine()">Search</button>
-      </div>
+    <h1>Find medicines.<br>Find pharmacies.<br><span style="color:#fbbf24;">Instantly.</span></h1>
+    <p>Search by name or describe symptoms — we'll do the rest.</p>
+    <div class="search-box" id="search-section">
+      <input type="text" id="searchInput" placeholder="Search medicine (e.g. Dolo 650, Pan 40...)" />
+      <button onclick="searchMedicine()">Search</button>
     </div>
   </section>
 
-  <section class="ai-section">
-    <div class="ai-inner">
-      <div class="ai-header">
-        <div class="ai-icon">🤖</div>
+  <main>
+
+    <section class="section ai-section" id="ai-section">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div style="width:44px;height:44px;background:#fef3c7;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">🤖</div>
         <div>
-          <h2>AI Symptom Checker</h2>
-          <p>Describe how you feel — get medicine suggestions instantly</p>
+          <div style="font-weight:700;font-size:16px;">AI Symptom Checker</div>
+          <div style="font-size:13px;color:#6b7280;">Describe how you feel — get medicine suggestions instantly</div>
         </div>
       </div>
       <div class="ai-input-row">
-        <textarea id="symptomsInput" placeholder="e.g. I have fever, headache and body pain since yesterday..." rows="2"></textarea>
-        <button class="ai-btn" onclick="getAIRecommendation()">Ask AI →</button>
+        <input type="text" id="symptomInput" placeholder="e.g. I have fever, headache and body pain since yesterday..." />
+        <button onclick="checkSymptoms()">Ask AI →</button>
       </div>
-      <div id="aiResult" class="ai-result" style="display:none"></div>
-    </div>
-  </section>
+      <div class="ai-result" id="aiResult" style="display:none;"></div>
+    </section>
 
-  <section class="category-section">
-    <div class="category-inner">
-      <p class="section-label">Browse by category</p>
-      <div class="category-pills">
-        <button class="cat-pill active" onclick="filterCategory('all')">All</button>
-        <button class="cat-pill" onclick="filterCategory('Painkiller')">💊 Painkillers</button>
-        <button class="cat-pill" onclick="filterCategory('Cold & Flu')">🤧 Cold & Flu</button>
-        <button class="cat-pill" onclick="filterCategory('Digestive')">🫃 Digestive</button>
-        <button class="cat-pill" onclick="filterCategory('Vitamins')">🌟 Vitamins</button>
-        <button class="cat-pill" onclick="filterCategory('Skin')">🧴 Skin</button>
-        <button class="cat-pill" onclick="filterCategory('Antihistamine')">🌿 Allergy</button>
-        <button class="cat-pill" onclick="filterCategory('Antibiotic')">🔬 Antibiotic</button>
-        <button class="cat-pill" onclick="filterCategory('First Aid')">🩹 First Aid</button>
-        <button class="cat-pill" onclick="filterCategory('Cardiac')">❤️ Cardiac</button>
-        <button class="cat-pill" onclick="filterCategory('Diabetes')">🩸 Diabetes</button>
-        <button class="cat-pill" onclick="filterCategory('Sleep')">😴 Sleep</button>
+    <section class="section" id="category-section">
+      <div style="font-size:11px;font-weight:600;color:#9ca3af;letter-spacing:1px;margin-bottom:12px;">BROWSE BY CATEGORY</div>
+      <div class="filter-row" id="categoryRow">
+        <button class="filter-pill active" onclick="filterByCategory('All', this)">All</button>
+        <button class="filter-pill" onclick="filterByCategory('Painkiller', this)">🎯 Painkillers</button>
+        <button class="filter-pill" onclick="filterByCategory('Cold & Flu', this)">🤧 Cold &amp; Flu</button>
+        <button class="filter-pill" onclick="filterByCategory('Digestive', this)">💊 Digestive</button>
+        <button class="filter-pill" onclick="filterByCategory('Vitamins', this)">✨ Vitamins</button>
+        <button class="filter-pill" onclick="filterByCategory('Skin', this)">🧴 Skin</button>
+        <button class="filter-pill" onclick="filterByCategory('Allergy', this)">🌿 Allergy</button>
+        <button class="filter-pill" onclick="filterByCategory('Antibiotic', this)">🔬 Antibiotic</button>
+        <button class="filter-pill" onclick="filterByCategory('First Aid', this)">🩹 First Aid</button>
+        <button class="filter-pill" onclick="filterByCategory('Cardiac', this)">❤️ Cardiac</button>
+        <button class="filter-pill" onclick="filterByCategory('Diabetes', this)">🩸 Diabetes</button>
+        <button class="filter-pill" onclick="filterByCategory('Sleep', this)">😴 Sleep</button>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="search" class="main-section">
-    <div class="section-inner">
+    <section class="section" id="results-section" style="display:none;">
       <h2 class="section-title">Search Results</h2>
-      <div id="searchResults" class="cards-grid">
-        <p class="placeholder-text">Search for a medicine above or pick a category</p>
+      <div id="results-container"></div>
+      <div id="related-section" style="display:none;margin-top:24px;">
+        <h3 class="related-title">You may also need</h3>
+        <div class="filter-row" id="filterRow"></div>
+        <div class="related-grid" id="relatedGrid"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="pharmacies" class="main-section alt-bg">
-    <div class="section-inner">
-      <h2 class="section-title">Nearby Pharmacies</h2>
+    <section class="section" id="pharmacies-section">
+      <h2 class="section-title">📍 Nearby Pharmacies</h2>
       <button id="findPharmBtn" class="btn-outline" onclick="findNearbyPharmacies()">📍 Show Nearby Pharmacies</button>
-      <div id="pharmacyList" class="cards-grid"></div>
-    </div>
-  </section>
+      <div id="pharmacies-container" class="pharmacies-grid" style="margin-top:16px;"></div>
+    </section>
 
-  <section id="map" class="main-section">
-    <div class="section-inner">
-      <h2 class="section-title">🗺️ Pharmacy Map</h2>
-      <button class="btn-outline" onclick="showMap()">Show Map</button>
-      <div id="map-container" style="width:100%;height:420px;border-radius:16px;margin-top:20px;display:none;"></div>
-    </div>
-  </section>
+    <section class="section" id="map-section">
+      <h2 class="section-title">🗺 Pharmacy Map</h2>
+      <div id="map-container" style="width:100%;height:420px;border-radius:16px;margin-top:12px;"></div>
+    </section>
 
-  <section id="emergency" class="main-section alt-bg">
-    <div class="section-inner">
-      <h2 class="section-title">🚨 Emergency Request</h2>
-      <p style="color:#6b7280;margin-bottom:20px">Can't find your medicine? Alert all nearby pharmacies instantly.</p>
-      <div class="emergency-form">
-        <input type="text" id="emergencyMedicine" placeholder="Medicine name" />
-        <input type="text" id="emergencyName" placeholder="Your name" />
-        <input type="text" id="emergencyPhone" placeholder="Phone number" />
-        <button class="btn-emergency" onclick="sendEmergency()">🚨 Send Emergency Request</button>
+    <section class="section emergency-section" id="emergency-section">
+      <h2 class="section-title">🚨 Emergency Contacts</h2>
+      <div class="emergency-grid">
+        <div class="emergency-card">
+          <div class="em-icon">🚑</div>
+          <div class="em-label">Ambulance</div>
+          <a href="tel:108" class="em-number">108</a>
+        </div>
+        <div class="emergency-card">
+          <div class="em-icon">🏥</div>
+          <div class="em-label">Hospital</div>
+          <a href="tel:104" class="em-number">104</a>
+        </div>
+        <div class="emergency-card">
+          <div class="em-icon">💊</div>
+          <div class="em-label">Poison Control</div>
+          <a href="tel:1800-116-117" class="em-number">1800-116-117</a>
+        </div>
       </div>
-      <div id="emergencyMsg" class="emergency-msg"></div>
-    </div>
-  </section>
+    </section>
 
-  <footer class="footer">
-    <p>💊 MediFind — Saving lives, one search at a time</p>
+  </main>
+
+  <footer>
+    <p>© 2024 MediFind. For informational purposes only.</p>
   </footer>
 
   <script src="app.js"></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrJtrmqBn_f0HJcqLr-y6SHGRxxoIysDc&callback=initMap"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrJtrmqBn_f0HJcqLr-y6SHGRxxoIysDc&callback=initMap" async defer></script>
 </body>
 </html>
