@@ -88,15 +88,17 @@ function fetchNearbyPharmacies(location) {
   container.innerHTML = '<p>🔍 Finding pharmacies near you...</p>';
   markers.forEach(m => m.setMap(null)); markers = [];
   const { lat, lng } = location;
-  const query = `[out:json][timeout:25];(node["amenity"="pharmacy"](around:2000,${lat},${lng});node["shop"="chemist"](around:2000,${lat},${lng}););out body;`;
-  fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: query })
+  const query = `[out:json][timeout:30];(node["amenity"="pharmacy"](around:5000,${lat},${lng});node["shop"="chemist"](around:5000,${lat},${lng});way["amenity"="pharmacy"](around:5000,${lat},${lng}););out center;`;
+  const encodedQuery = encodeURIComponent(query);
+  fetch(`https://overpass-api.de/api/interpreter?data=${encodedQuery}`, { method: 'GET' })
   .then(r => r.json())
   .then(data => {
     if (!data.elements || !data.elements.length) { container.innerHTML = '<p class="placeholder-text">No pharmacies found nearby.</p>'; return; }
-    const pharmacies = data.elements.filter(p => p.lat && p.lon).map(p => ({
+    const pharmacies = data.elements.filter(p => (p.lat && p.lon) || (p.center)).map(p => ({
       name: p.tags.name || 'Medical Store',
-      address: [p.tags['addr:street'], p.tags['addr:city']].filter(Boolean).join(', ') || 'Nearby',
-      phone: p.tags.phone || '', lat: p.lat, lng: p.lon,
+      address: [p.tags['addr:street'], p.tags['addr:city'], p.tags['addr:suburb']].filter(Boolean).join(', ') || 'Nearby',
+      phone: p.tags.phone || p.tags['contact:phone'] || '',
+      lat: p.lat || p.center.lat, lng: p.lon || p.center.lon,
       distance: getDistKm(lat, lng, p.lat, p.lon)
     })).sort((a,b) => a.distance - b.distance).slice(0, 10);
     container.innerHTML = pharmacies.map((p,i) => {
