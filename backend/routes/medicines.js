@@ -26,11 +26,8 @@ router.get('/category', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  try {
-    res.json(await Medicine.find());
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  try { res.json(await Medicine.find()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.post('/', async (req, res) => {
@@ -38,9 +35,7 @@ router.post('/', async (req, res) => {
     const medicine = new Medicine(req.body);
     await medicine.save();
     res.status(201).json(medicine);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 module.exports = router;

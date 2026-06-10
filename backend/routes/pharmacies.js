@@ -6,16 +6,13 @@ const PHARMACIES = [
   {name:'Apollo Pharmacy - T Nagar',address:'T Nagar, Chennai',phone:'044-28341234',lat:13.0418,lng:80.2341},
   {name:'Apollo Pharmacy - Adyar',address:'Adyar, Chennai',phone:'044-24421234',lat:13.0012,lng:80.2565},
   {name:'Apollo Pharmacy - Velachery',address:'Velachery, Chennai',phone:'044-22431234',lat:12.9815,lng:80.2180},
-  {name:'Apollo Pharmacy - Tambaram',address:'Tambaram, Chennai',phone:'044-22261234',lat:12.9249,lng:80.1000},
   {name:'MedPlus - Anna Nagar',address:'Anna Nagar West, Chennai',phone:'1800-425-1234',lat:13.0850,lng:80.2050},
   {name:'MedPlus - T Nagar',address:'Pondy Bazaar, T Nagar',phone:'1800-425-1234',lat:13.0400,lng:80.2300},
   {name:'MedPlus - Adyar',address:'LB Road, Adyar',phone:'1800-425-1234',lat:12.9980,lng:80.2540},
   {name:'MedPlus - Velachery',address:'Velachery Main Road',phone:'1800-425-1234',lat:12.9790,lng:80.2200},
-  {name:'MedPlus - Porur',address:'Porur, Chennai',phone:'1800-425-1234',lat:13.0350,lng:80.1567},
   {name:'Netmeds Pharmacy - Mylapore',address:'Mylapore, Chennai',phone:'044-24611234',lat:13.0335,lng:80.2689},
   {name:'Trust Pharmacy - Guindy',address:'Guindy, Chennai',phone:'044-22501234',lat:13.0067,lng:80.2206},
   {name:'Jan Aushadhi - Anna Nagar',address:'Anna Nagar, Chennai',phone:'',lat:13.0920,lng:80.2150},
-  {name:'Sri Balaji Pharmacy - Chromepet',address:'Chromepet, Chennai',phone:'044-22381234',lat:12.9516,lng:80.1462},
   {name:'Wellness Forever - Nungambakkam',address:'Nungambakkam High Road',phone:'044-28221234',lat:13.0569,lng:80.2425}
 ];
 
