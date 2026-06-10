@@ -4,11 +4,9 @@ const Medicine = require('../models/Medicine');
 
 router.get('/search', async (req, res) => {
   try {
-    const q = (req.query.q || req.query.name || '').trim();
+    const q = String(req.query.q || req.query.name || '').trim();
     if (!q) return res.json([]);
-    const medicines = await Medicine.find({
-      name: { $regex: q, $options: 'i' }
-    });
+    const medicines = await Medicine.find({ name: { $regex: q, $options: 'i' } });
     res.json(medicines);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -17,13 +15,11 @@ router.get('/search', async (req, res) => {
 
 router.get('/category', async (req, res) => {
   try {
-    const { cat } = req.query;
+    const cat = String(req.query.cat || '').trim();
     if (!cat || cat.toLowerCase() === 'all') {
-      const medicines = await Medicine.find().limit(50);
-      return res.json(medicines);
+      return res.json(await Medicine.find().limit(50));
     }
-    const medicines = await Medicine.find({ category: { $regex: cat, $options: 'i' } });
-    res.json(medicines);
+    res.json(await Medicine.find({ category: { $regex: cat, $options: 'i' } }));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -31,8 +27,7 @@ router.get('/category', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const medicines = await Medicine.find();
-    res.json(medicines);
+    res.json(await Medicine.find());
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
