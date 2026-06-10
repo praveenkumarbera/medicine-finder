@@ -88,35 +88,55 @@ function fetchNearbyPharmacies(location) {
   container.innerHTML = '<p>🔍 Finding pharmacies near you...</p>';
   markers.forEach(m => m.setMap(null)); markers = [];
   const { lat, lng } = location;
-  const query = `[out:json][timeout:30];(node["amenity"="pharmacy"](around:5000,${lat},${lng});node["shop"="chemist"](around:5000,${lat},${lng});way["amenity"="pharmacy"](around:5000,${lat},${lng}););out center;`;
-  const encodedQuery = encodeURIComponent(query);
-  fetch(`https://overpass-api.de/api/interpreter?data=${encodedQuery}`, { method: 'GET' })
+
+  fetch(`${API}/pharmacies/nearby?lat=${lat}&lng=${lng}`)
   .then(r => r.json())
   .then(data => {
-    if (!data.elements || !data.elements.length) { container.innerHTML = '<p class="placeholder-text">No pharmacies found nearby.</p>'; return; }
-    const pharmacies = data.elements.filter(p => (p.lat && p.lon) || (p.center)).map(p => ({
-      name: p.tags.name || 'Medical Store',
-      address: [p.tags['addr:street'], p.tags['addr:city'], p.tags['addr:suburb']].filter(Boolean).join(', ') || 'Nearby',
-      phone: p.tags.phone || p.tags['contact:phone'] || '',
-      lat: p.lat || p.center.lat, lng: p.lon || p.center.lon,
-      distance: getDistKm(lat, lng, p.lat, p.lon)
-    })).sort((a,b) => a.distance - b.distance).slice(0, 10);
+    if (!data.length) { container.innerHTML = '<p class="placeholder-text">No pharmacies found nearby.</p>'; return; }
+
+    const pharmacies = data
+      .map(p => ({ ...p, distance: getDistKm(lat, lng, p.lat, p.lng) }))
+      .sort((a,b) => a.distance - b.distance)
+      .slice(0, 10);
+
     container.innerHTML = pharmacies.map((p,i) => {
       const dist = p.distance < 1 ? `${Math.round(p.distance*1000)}m away` : `${p.distance.toFixed(1)}km away`;
-      return `<div class="card"><h3>🏪 ${p.name}</h3><p>📍 ${p.address}</p>${p.phone?`<p>📞 ${p.phone}</p>`:''}<p style="color:var(--blue);font-weight:600">📏 ${dist}</p>
-        <button class="btn-outline" style="margin-top:10px;padding:8px 16px;font-size:0.85rem" onclick="focusMap(${p.lat},${p.lng},'${p.name.replace(/'/g,"\\'")}',${i})">🗺️ Show on Map</button></div>`;
+      return `<div class="card">
+        <h3>🏪 ${p.name}</h3>
+        <p>📍 ${p.address}</p>
+        ${p.phone ? `<p>📞 ${p.phone}</p>` : ''}
+        <p style="color:var(--blue);font-weight:600">📏 ${dist}</p>
+        <button class="btn-outline" style="margin-top:10px;padding:8px 16px;font-size:0.85rem"
+          onclick="focusMap(${p.lat},${p.lng},'${p.name.replace(/'/g,"\\'")}',${i})">
+          🗺️ Show on Map
+        </button>
+      </div>`;
     }).join('');
+
     pharmacies.forEach((p,i) => {
-      const marker = new google.maps.Marker({ position:{lat:p.lat,lng:p.lng}, map, title:p.name, icon:{url:'https://maps.google.com/mapfiles/ms/icons/red-dot.png'} });
+      const marker = new google.maps.Marker({
+        position:{lat:p.lat,lng:p.lng}, map, title:p.name,
+        icon:{url:'https://maps.google.com/mapfiles/ms/icons/red-dot.png'}
+      });
       marker.addListener('click', () => {
-        infoWindow.setContent(`<div style="font-family:Inter,sans-serif;padding:4px"><strong>${p.name}</strong><div style="font-size:12px;color:#555;margin-top:4px">📍 ${p.address}</div></div>`);
+        const dist = p.distance < 1 ? `${Math.round(p.distance*1000)}m away` : `${p.distance.toFixed(1)}km away`;
+        infoWindow.setContent(`<div style="font-family:Inter,sans-serif;padding:4px;max-width:200px">
+          <strong>${p.name}</strong>
+          <div style="font-size:12px;color:#555;margin-top:4px">📍 ${p.address}</div>
+          ${p.phone ? `<div style="font-size:12px">📞 ${p.phone}</div>` : ''}
+          <div style="font-size:12px;color:#1a73e8;margin-top:4px">📏 ${dist}</div>
+        </div>`);
         infoWindow.open(map, marker);
       });
       markers.push(marker);
     });
     showMap();
+    const bounds = new google.maps.LatLngBounds();
+    markers.forEach(m => bounds.extend(m.getPosition()));
+    if (userLocation) bounds.extend(userLocation);
+    map.fitBounds(bounds);
   })
-  .catch(() => { container.innerHTML = '<p style="color:red">Could not load pharmacies. Try again.</p>'; });
+  .catch(err => { container.innerHTML = `<p style="color:red">❌ ${err.message}</p>`; });
 }
 
 function focusMap(lat, lng, name, i) {

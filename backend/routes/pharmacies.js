@@ -1,43 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const Pharmacy = require('../models/Pharmacy');
 
-router.get('/', async (req, res) => {
+router.get('/nearby', async (req, res) => {
   try {
-    const pharmacies = await Pharmacy.find().populate('inventory.medicine');
+    const { lat, lng } = req.query;
+    if (!lat || !lng) return res.status(400).json({ error: 'lat and lng required' });
+
+    const query = `[out:json][timeout:30];(node["amenity"="pharmacy"](around:5000,${lat},${lng});node["shop"="chemist"](around:5000,${lat},${lng});way["amenity"="pharmacy"](around:5000,${lat},${lng}););out center;`;
+
+    const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+    const data = await response.json();
+
+    if (!data.elements || !data.elements.length) return res.json([]);
+
+    const pharmacies = data.elements
+      .filter(p => (p.lat && p.lon) || p.center)
+      .map(p => ({
+        name: p.tags.name || 'Medical Store',
+        address: [p.tags['addr:street'], p.tags['addr:city'], p.tags['addr:suburb']].filter(Boolean).join(', ') || 'Nearby',
+        phone: p.tags.phone || p.tags['contact:phone'] || '',
+        lat: p.lat || p.center.lat,
+        lng: p.lon || p.center.lon
+      }));
+
     res.json(pharmacies);
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    const pharmacy = new Pharmacy(req.body);
-    await pharmacy.save();
-    res.status(201).json(pharmacy);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-router.put('/:id/stock', async (req, res) => {
-  try {
-    const { medicineId, quantity, inStock } = req.body;
-    const pharmacy = await Pharmacy.findById(req.params.id);
-    const item = pharmacy.inventory.find(
-      i => i.medicine.toString() === medicineId
-    );
-    if (item) {
-      item.quantity = quantity;
-      item.inStock = inStock;
-    } else {
-      pharmacy.inventory.push({ medicine: medicineId, quantity, inStock });
-    }
-    await pharmacy.save();
-    res.json(pharmacy);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
   }
 });
 
