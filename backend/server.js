@@ -23,8 +23,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Routes
 app.use('/api/medicines', require('./routes/medicines'));
-app.use('/api/pharmacies', require('./routes/pharmacies'));
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/pharmacy', require('./routes/pharmacies'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/ai', require('./routes/ai'));
 // Root - Send Frontend

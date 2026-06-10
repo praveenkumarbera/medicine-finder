@@ -13,8 +13,10 @@ async function filterCategory(cat) {
   const container = document.getElementById('searchResults');
   container.innerHTML = '<p>Loading...</p>';
   try {
-    const query = cat === 'all' ? '' : cat;
-    const res = await fetch(`${API}/medicines/search?name=${encodeURIComponent(query)}`);
+    const url = cat === 'all'
+      ? `${API}/medicines/category?cat=all`
+      : `${API}/medicines/category?cat=${encodeURIComponent(cat)}`;
+    const res = await fetch(url);
     const medicines = await res.json();
     if (!medicines || !medicines.length) {
       container.innerHTML = '<p class="placeholder-text">No medicines in this category.</p>';
