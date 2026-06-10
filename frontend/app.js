@@ -4,7 +4,6 @@ let markers = [];
 let userLocation = null;
 let infoWindow = null;
 
-// ─── MAP INIT ────────────────────────────────────────────────
 function initMap() {
   map = new google.maps.Map(document.getElementById('map-container'), {
     center: { lat: 13.0827, lng: 80.2707 },
@@ -18,7 +17,6 @@ function initMap() {
       userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       map.setCenter(userLocation);
       addUserMarker(userLocation);
-      fetchNearbyPharmacies(userLocation);
     }, () => {});
   }
 }
@@ -30,7 +28,6 @@ function showMap() {
   if (userLocation) map.setCenter(userLocation);
 }
 
-// ─── USER LOCATION MARKER ────────────────────────────────────
 function addUserMarker(location) {
   new google.maps.Marker({
     position: location,
@@ -48,12 +45,11 @@ function addUserMarker(location) {
   });
 }
 
-// ─── FIND NEARBY PHARMACIES (button click) ───────────────────
 function findNearbyPharmacies() {
   const btn = document.getElementById('findPharmBtn');
   if (!navigator.geolocation) {
-    document.getElementById('pharmacies-container').innerHTML =
-      '<p class="no-results">Geolocation is not supported by your browser.</p>';
+    document.getElementById('pharmacyList').innerHTML =
+      '<p style="color:red">Geolocation not supported.</p>';
     return;
   }
   btn.textContent = '📍 Getting your location...';
@@ -68,28 +64,25 @@ function findNearbyPharmacies() {
     btn.textContent = '📍 Refresh Pharmacies';
     btn.disabled = false;
   }, () => {
-    document.getElementById('pharmacies-container').innerHTML =
-      '<p class="no-results">⚠️ Location access denied. Please allow location in your browser settings.</p>';
+    document.getElementById('pharmacyList').innerHTML =
+      '<p style="color:red">⚠️ Location access denied. Please allow location in browser settings.</p>';
     btn.textContent = '📍 Show Nearby Pharmacies';
     btn.disabled = false;
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-// ─── FETCH PHARMACIES (FREE — OpenStreetMap) ─────────────────
 function fetchNearbyPharmacies(location) {
-  const container = document.getElementById('pharmacies-container');
-  container.innerHTML = '<p class="loading">🔍 Finding pharmacies near you...</p>';
+  const container = document.getElementById('pharmacyList');
+  container.innerHTML = '<p>🔍 Finding pharmacies near you...</p>';
   markers.forEach(m => m.setMap(null));
   markers = [];
 
   const { lat, lng } = location;
-
   const query = `
     [out:json][timeout:25];
     (
       node["amenity"="pharmacy"](around:2000,${lat},${lng});
       node["shop"="chemist"](around:2000,${lat},${lng});
-      node["amenity"="doctors"](around:2000,${lat},${lng});
     );
     out body;
   `;
@@ -101,7 +94,7 @@ function fetchNearbyPharmacies(location) {
   .then(res => res.json())
   .then(data => {
     if (!data.elements || !data.elements.length) {
-      container.innerHTML = '<p class="no-results">No pharmacies found nearby.</p>';
+      container.innerHTML = '<p class="placeholder">No pharmacies found nearby.</p>';
       return;
     }
 
@@ -119,42 +112,34 @@ function fetchNearbyPharmacies(location) {
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 10);
 
-    renderPharmacyCards(pharmacies);
-    pharmacies.forEach(p => addPharmacyMarker(p));
+    container.innerHTML = pharmacies.map((p, i) => {
+      const dist = p.distance < 1
+        ? `${Math.round(p.distance * 1000)}m away`
+        : `${p.distance.toFixed(1)}km away`;
+      return `
+        <div class="card">
+          <h3>🏪 ${p.name}</h3>
+          <p>📍 ${p.address}</p>
+          ${p.phone ? `<p>📞 ${p.phone}</p>` : ''}
+          ${p.opening_hours ? `<p>🕐 ${p.opening_hours}</p>` : ''}
+          <p style="color:#1a73e8;font-weight:600;">📏 ${dist}</p>
+          <button class="btn-outline" style="margin-top:10px;padding:8px 16px;font-size:0.85rem"
+            onclick="focusPharmacyOnMap(${p.lat}, ${p.lng}, '${p.name.replace(/'/g,"\\'")}', ${i})">
+            🗺️ Show on Map
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    pharmacies.forEach((p, i) => addPharmacyMarker(p, i));
     showMap();
   })
   .catch(() => {
-    container.innerHTML = '<p class="no-results">Could not load pharmacies. Check your internet and try again.</p>';
+    container.innerHTML = '<p style="color:red">Could not load pharmacies. Check internet and try again.</p>';
   });
 }
 
-// ─── RENDER PHARMACY CARDS ───────────────────────────────────
-function renderPharmacyCards(pharmacies) {
-  const container = document.getElementById('pharmacies-container');
-  container.innerHTML = pharmacies.map((p, i) => {
-    const dist = p.distance < 1
-      ? `${Math.round(p.distance * 1000)}m away`
-      : `${p.distance.toFixed(1)}km away`;
-
-    return `
-      <div class="pharmacy-card">
-        <div class="pharmacy-name">🏥 ${p.name}</div>
-        <div class="pharmacy-meta">📍 ${p.address}</div>
-        ${p.phone ? `<div class="pharmacy-meta">📞 ${p.phone}</div>` : ''}
-        ${p.opening_hours ? `<div class="pharmacy-meta">🕐 ${p.opening_hours}</div>` : ''}
-        <div class="pharmacy-meta" style="color:#1a73e8; font-weight:500; margin-top:4px;">
-          📏 ${dist}
-        </div>
-        <button class="btn-show-map" onclick="focusPharmacyOnMap(${p.lat}, ${p.lng}, '${p.name.replace(/'/g, "\\'")}', ${i})">
-          🗺 Show on Map
-        </button>
-      </div>
-    `;
-  }).join('');
-}
-
-// ─── ADD PHARMACY MARKER ON GOOGLE MAP ───────────────────────
-function addPharmacyMarker(pharmacy) {
+function addPharmacyMarker(pharmacy, index) {
   const marker = new google.maps.Marker({
     position: { lat: pharmacy.lat, lng: pharmacy.lng },
     map,
@@ -167,14 +152,12 @@ function addPharmacyMarker(pharmacy) {
     const dist = pharmacy.distance < 1
       ? `${Math.round(pharmacy.distance * 1000)}m away`
       : `${pharmacy.distance.toFixed(1)}km away`;
-
     infoWindow.setContent(`
-      <div style="font-family:Poppins,sans-serif; padding:4px; max-width:220px;">
-        <strong style="font-size:14px;">${pharmacy.name}</strong>
-        <div style="font-size:12px; color:#555; margin-top:4px;">📍 ${pharmacy.address}</div>
-        ${pharmacy.phone ? `<div style="font-size:12px; margin-top:4px;">📞 ${pharmacy.phone}</div>` : ''}
-        ${pharmacy.opening_hours ? `<div style="font-size:12px; margin-top:4px;">🕐 ${pharmacy.opening_hours}</div>` : ''}
-        <div style="font-size:12px; color:#1a73e8; margin-top:4px;">📏 ${dist}</div>
+      <div style="font-family:Poppins,sans-serif;padding:4px;max-width:220px;">
+        <strong>${pharmacy.name}</strong>
+        <div style="font-size:12px;color:#555;margin-top:4px;">📍 ${pharmacy.address}</div>
+        ${pharmacy.phone ? `<div style="font-size:12px;">📞 ${pharmacy.phone}</div>` : ''}
+        <div style="font-size:12px;color:#1a73e8;margin-top:4px;">📏 ${dist}</div>
       </div>
     `);
     infoWindow.open(map, marker);
@@ -183,16 +166,14 @@ function addPharmacyMarker(pharmacy) {
   markers.push(marker);
 }
 
-// ─── FOCUS MAP ON PHARMACY ───────────────────────────────────
 function focusPharmacyOnMap(lat, lng, name, index) {
   showMap();
   map.setCenter({ lat, lng });
   map.setZoom(17);
   if (markers[index]) google.maps.event.trigger(markers[index], 'click');
-  document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ─── DISTANCE CALCULATOR ─────────────────────────────────────
 function getDistanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -203,190 +184,163 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// ─── SEARCH MEDICINE ─────────────────────────────────────────
 async function searchMedicine() {
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) return;
+  const input = document.getElementById('medicineInput');
+  const name = input.value.trim();
+  if (!name) { alert('Please enter a medicine name!'); return; }
 
-  const resultsSection = document.getElementById('results-section');
-  const container = document.getElementById('results-container');
-  const relatedSection = document.getElementById('related-section');
-
-  container.innerHTML = '<p class="loading">Searching...</p>';
-  resultsSection.style.display = 'block';
-  relatedSection.style.display = 'none';
+  const container = document.getElementById('searchResults');
+  container.innerHTML = '<p>Searching...</p>';
 
   try {
-    const res = await fetch(`${API}/medicines/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`${API}/medicines/search?name=${encodeURIComponent(name)}`);
     const medicines = await res.json();
 
     if (!medicines.length) {
-      container.innerHTML = '<p class="no-results">No medicines found. Try a different name.</p>';
+      container.innerHTML = '<p class="placeholder">No medicines found.</p>';
       return;
     }
 
     container.innerHTML = medicines.map(m => `
-      <div class="result-card">
-        <div class="result-name">💊 ${m.name}</div>
-        <div class="result-meta">📂 Category: ${m.category}</div>
-        <div class="result-meta">ℹ️ ${m.description}</div>
-        <div class="result-price">💰 Price: ₹${m.price}</div>
-        <span class="${m.requiresPrescription ? 'badge-rx' : 'badge-otc'}">
-          ${m.requiresPrescription ? '⚠️ Prescription Required' : '✅ No Prescription'}
+      <div class="card">
+        <h3>💊 ${m.name}</h3>
+        <p>📁 Category: ${m.category || 'General'}</p>
+        <p>📝 ${m.description || 'No description'}</p>
+        <p>💰 Price: ₹${m.price || 'N/A'}</p>
+        <span class="badge ${m.requiresPrescription ? 'outstock' : 'instock'}">
+          ${m.requiresPrescription ? '📋 Prescription Required' : '✅ No Prescription'}
         </span>
       </div>
     `).join('');
 
-    if (medicines.length > 0) {
-      loadRelatedMedicines(medicines[0].category, medicines[0].name);
-    }
-
-    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
 
   } catch (err) {
-    container.innerHTML = '<p class="no-results">Error fetching results. Please try again.</p>';
+    container.innerHTML = `<p style="color:red">❌ Error: ${err.message}</p>`;
   }
 }
 
-// ─── RELATED MEDICINES ───────────────────────────────────────
-async function loadRelatedMedicines(category, excludeName) {
-  const relatedSection = document.getElementById('related-section');
-  const filterRow = document.getElementById('filterRow');
+async function getAIRecommendation() {
+  const symptoms = document.getElementById('symptomsInput').value.trim();
+  if (!symptoms) { alert('Please describe your symptoms!'); return; }
 
-  relatedSection.style.display = 'block';
+  const resultDiv = document.getElementById('aiResult');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = '🤖 AI is analyzing your symptoms...';
 
   try {
-    const res = await fetch(`${API}/medicines`);
-    const all = await res.json();
-
-    const categories = ['All', ...new Set(all.map(m => m.category))];
-
-    filterRow.innerHTML = categories.map(cat => `
-      <button class="filter-pill ${cat === category ? 'active' : ''}"
-              onclick="filterRelated('${cat}', this)">
-        ${cat}
-      </button>
-    `).join('');
-
-    window._allMedicines = all;
-    window._excludeName = excludeName;
-
-    const related = all.filter(m => m.name !== excludeName && m.category === category).slice(0, 6);
-    renderRelatedCards(related);
-
-  } catch (err) {
-    relatedSection.style.display = 'none';
-  }
-}
-
-function filterRelated(cat, el) {
-  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  const medicines = window._allMedicines || [];
-  const exclude = window._excludeName || '';
-  const filtered = cat === 'All'
-    ? medicines.filter(m => m.name !== exclude).slice(0, 8)
-    : medicines.filter(m => m.category === cat && m.name !== exclude).slice(0, 8);
-  renderRelatedCards(filtered);
-}
-
-function renderRelatedCards(list) {
-  const catColors = {
-    'Painkiller':    { bg: '#fce8e6', color: '#c5221f' },
-    'Digestive':     { bg: '#e6f4ea', color: '#137333' },
-    'Vitamins':      { bg: '#e8f0fe', color: '#1a73e8' },
-    'Cold & Flu':    { bg: '#fef7e0', color: '#b06000' },
-    'Skin':          { bg: '#fce8f3', color: '#a8006e' },
-    'Antihistamine': { bg: '#f3e8fd', color: '#7b1fa2' },
-    'Antibiotic':    { bg: '#fce8e6', color: '#b31412' },
-    'Nasal':         { bg: '#e0f7fa', color: '#006064' },
-    'First Aid':     { bg: '#fff3e0', color: '#e65100' },
-    'Sleep':         { bg: '#ede7f6', color: '#4527a0' },
-    'Cardiac':       { bg: '#fce4ec', color: '#880e4f' },
-    'Diabetes':      { bg: '#e8f5e9', color: '#1b5e20' },
-  };
-
-  const grid = document.getElementById('relatedGrid');
-  if (!list.length) {
-    grid.innerHTML = '<p class="no-results" style="grid-column:1/-1;">No medicines in this category.</p>';
-    return;
-  }
-
-  grid.innerHTML = list.map(m => {
-    const c = catColors[m.category] || { bg: '#e8f0fe', color: '#1a73e8' };
-    return `
-      <div class="related-card" onclick="document.getElementById('searchInput').value='${m.name}'; searchMedicine();">
-        <span class="cat-pill" style="background:${c.bg}; color:${c.color};">${m.category}</span>
-        <div class="related-name">${m.name}</div>
-        <div class="related-desc">${m.description}</div>
-        <div class="related-footer">
-          <span class="related-price">₹${m.price}</span>
-          <span class="${m.requiresPrescription ? 'badge-rx-sm' : 'badge-otc-sm'}">
-            ${m.requiresPrescription ? 'Rx' : 'OTC'}
-          </span>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// ─── AI SYMPTOM CHECKER ──────────────────────────────────────
-async function checkSymptoms() {
-  const symptom = document.getElementById('symptomInput').value.trim();
-  const resultEl = document.getElementById('aiResult');
-  if (!symptom) return;
-
-  resultEl.className = 'ai-result ai-loading';
-  resultEl.textContent = '🤔 Analyzing your symptoms...';
-  resultEl.style.display = 'block';
-
-  try {
-    const res = await fetch(`${API}/ai/suggest`, {
+    const res = await fetch(`${API}/ai/recommend`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symptoms: symptom })
+      body: JSON.stringify({ symptoms })
     });
     const data = await res.json();
-    resultEl.className = 'ai-result ai-success';
-    resultEl.innerHTML = data.suggestion || formatAISuggestion(symptom);
-  } catch {
-    resultEl.className = 'ai-result ai-success';
-    resultEl.innerHTML = formatAISuggestion(symptom);
-  }
-}
-
-function formatAISuggestion(symptom) {
-  const s = symptom.toLowerCase();
-  const map = [
-    { keys: ['headache', 'head ache', 'head pain'],  meds: ['Dolo 650', 'Crocin', 'Combiflam'],           note: 'Rest and stay hydrated.' },
-    { keys: ['fever', 'temperature', 'high temp'],    meds: ['Dolo 650', 'Crocin', 'Paracetamol'],         note: 'If fever exceeds 103°F, consult a doctor.' },
-    { keys: ['acidity', 'acid', 'heartburn', 'gas'],  meds: ['Eno', 'Digene', 'Pan 40', 'Omeprazole'],     note: 'Avoid spicy food and eat smaller meals.' },
-    { keys: ['cold', 'sneezing', 'runny nose'],       meds: ['Sinarest', 'Vicks VapoRub', 'Otrivin'],      note: 'Steam inhalation also helps.' },
-    { keys: ['cough', 'throat'],                      meds: ['Strepsils', 'Cough Syrup'],                   note: 'Warm water with honey is also soothing.' },
-    { keys: ['stomach', 'diarrhea', 'loose motion'],  meds: ['ORS Sachet', 'Metronidazole', 'Pudin Hara'], note: 'Keep yourself well hydrated.' },
-    { keys: ['allergy', 'itching', 'rash'],           meds: ['Levocetrizine', 'Avil', 'Calamine Lotion'],  note: 'Avoid the allergen if known.' },
-    { keys: ['wound', 'cut', 'injury'],               meds: ['Dettol', 'Betadine', 'Soframycin'],          note: 'Clean the wound before applying.' },
-    { keys: ['pain', 'body ache', 'muscle'],          meds: ['Combiflam', 'Dolo 650', 'Disprin'],          note: 'Consult a doctor if pain persists.' },
-  ];
-
-  for (const entry of map) {
-    if (entry.keys.some(k => s.includes(k))) {
-      const links = entry.meds.map(med =>
-        `<a class="med-link" onclick="document.getElementById('searchInput').value='${med}'; searchMedicine();">${med}</a>`
-      ).join(', ');
-      return `💊 <strong>Suggested medicines:</strong> ${links}<br><small>ℹ️ ${entry.note} Always consult a doctor for proper diagnosis.</small>`;
+    if (data.error) {
+      resultDiv.innerHTML = `❌ Error: ${data.error}`;
+    } else {
+      resultDiv.innerHTML = `<strong>🤖 AI Recommendation:</strong>\n\n${data.recommendation}`;
     }
+  } catch (err) {
+    resultDiv.innerHTML = `❌ Error: ${err.message}`;
   }
-
-  return `⚠️ Couldn't match specific symptoms. Try keywords like <em>fever, headache, cough, acidity</em>, or consult a doctor.`;
 }
 
-// ─── ENTER KEY SUPPORT ───────────────────────────────────────
+function sendEmergency() {
+  const medicine = document.getElementById('emergencyMedicine').value.trim();
+  const name = document.getElementById('emergencyName').value.trim();
+  const phone = document.getElementById('emergencyPhone').value.trim();
+  if (!medicine || !name || !phone) { alert('Please fill all fields!'); return; }
+  document.getElementById('emergencyMsg').innerHTML =
+    `✅ Emergency request sent for <strong>${medicine}</strong>! Nearby pharmacies notified.`;
+  document.getElementById('emergencyMedicine').value = '';
+  document.getElementById('emergencyName').value = '';
+  document.getElementById('emergencyPhone').value = '';
+}
+
+function showLogin() { closeModals(); document.getElementById('loginModal').style.display = 'flex'; }
+function showRegister() { closeModals(); document.getElementById('registerModal').style.display = 'flex'; }
+function closeModals() {
+  document.getElementById('loginModal').style.display = 'none';
+  document.getElementById('registerModal').style.display = 'none';
+}
+
+async function register() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+  const role = document.getElementById('regRole').value;
+  if (!name || !email || !password) {
+    document.getElementById('registerMsg').style.color = 'red';
+    document.getElementById('registerMsg').textContent = 'Please fill all fields!';
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role })
+    });
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('registerMsg').style.color = 'red';
+      document.getElementById('registerMsg').textContent = data.error;
+    } else {
+      document.getElementById('registerMsg').style.color = 'green';
+      document.getElementById('registerMsg').textContent = data.message;
+      setTimeout(() => showLogin(), 1500);
+    }
+  } catch (err) {
+    document.getElementById('registerMsg').textContent = 'Error: ' + err.message;
+  }
+}
+
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  if (!email || !password) { document.getElementById('loginMsg').textContent = 'Please fill all fields!'; return; }
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('loginMsg').textContent = data.error;
+    } else {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userName', data.user.name);
+      closeModals();
+      updateAuthUI();
+    }
+  } catch (err) {
+    document.getElementById('loginMsg').textContent = 'Error: ' + err.message;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userName');
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const token = localStorage.getItem('token');
+  const name = localStorage.getItem('userName');
+  if (token) {
+    document.getElementById('authButtons').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'flex';
+    document.getElementById('userInfo').style.alignItems = 'center';
+    document.getElementById('userName').textContent = `👋 ${name}`;
+  } else {
+    document.getElementById('authButtons').style.display = 'flex';
+    document.getElementById('userInfo').style.display = 'none';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('searchInput').addEventListener('keydown', e => {
+  updateAuthUI();
+  document.getElementById('medicineInput').addEventListener('keypress', e => {
     if (e.key === 'Enter') searchMedicine();
-  });
-  document.getElementById('symptomInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkSymptoms();
   });
 });

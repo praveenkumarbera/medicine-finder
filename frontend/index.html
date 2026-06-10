@@ -3,97 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MediFind</title>
+  <title>Medicine Finder</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrJtrmqBn_f0HJcqLr-y6SHGRxxoIysDc&libraries=places&callback=initMap" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
   <header>
-    <div class="header-inner">
-      <div class="logo">🏥 MediFind</div>
-      <nav class="nav-links">
-        <a href="#search-section">Search</a>
-        <a href="#pharmacies-section">Pharmacies</a>
-        <a href="#map-section">Map</a>
-        <a href="#ai-section">AI Suggest</a>
-        <a href="#emergency-section">Emergency</a>
-      </nav>
-    </div>
+    <div class="logo">💊 MediFind</div>
+    <nav>
+      <a href="#search">Search</a>
+      <a href="#pharmacies">Pharmacies</a>
+      <a href="#map">Map</a>
+      <a href="#ai">AI Suggest</a>
+      <a href="#emergency">Emergency</a>
+      <div id="authButtons">
+        <button class="btn-login" onclick="showLogin()">Login</button>
+        <button class="btn-register" onclick="showRegister()">Register</button>
+      </div>
+      <div id="userInfo" style="display:none">
+        <span id="userName" style="color:white;margin-right:12px"></span>
+        <button class="btn-login" onclick="logout()">Logout</button>
+      </div>
+    </nav>
   </header>
 
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal" style="display:none">
+    <div class="modal-box">
+      <h2>🔐 Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button class="btn-emergency" onclick="login()">Login</button>
+      <p id="loginMsg" style="color:red;margin-top:8px"></p>
+      <p style="margin-top:12px">No account? <a href="#" onclick="showRegister()">Register here</a></p>
+      <button class="close-btn" onclick="closeModals()">✕</button>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div id="registerModal" class="modal" style="display:none">
+    <div class="modal-box">
+      <h2>📝 Register</h2>
+      <input type="text" id="regName" placeholder="Full name" />
+      <input type="email" id="regEmail" placeholder="Email" />
+      <input type="password" id="regPassword" placeholder="Password" />
+      <select id="regRole">
+        <option value="user">I am a Patient</option>
+        <option value="pharmacy">I am a Pharmacy</option>
+      </select>
+      <button class="btn-emergency" onclick="register()">Create Account</button>
+      <p id="registerMsg" style="margin-top:8px"></p>
+      <p style="margin-top:12px">Have account? <a href="#" onclick="showLogin()">Login here</a></p>
+      <button class="close-btn" onclick="closeModals()">✕</button>
+    </div>
+  </div>
+
   <section class="hero">
-    <h1>Find Your Medicine<br>Near You — Instantly</h1>
+    <h1>Find Your Medicine<br/>Near You — Instantly</h1>
     <p>Search medicines and find nearby pharmacies with live stock availability</p>
-    <div class="search-box" id="search-section">
-      <input type="text" id="searchInput" placeholder="Search medicine (e.g. Dolo 650, Pan 40...)" />
+    <div class="search-box">
+      <input type="text" id="medicineInput" placeholder="Search medicine name... (e.g. Paracetamol)" />
       <button onclick="searchMedicine()">🔍 Search</button>
     </div>
   </section>
 
-  <main>
+  <section id="search" class="section">
+    <h2>Search Results</h2>
+    <div id="searchResults" class="cards-grid">
+      <p class="placeholder">Search for a medicine above to see results</p>
+    </div>
+  </section>
 
-    <section class="section ai-section" id="ai-section">
-      <h2 class="section-title">✨ AI Symptom Checker</h2>
-      <p class="section-sub">Describe your symptoms and get medicine suggestions</p>
-      <div class="ai-input-row">
-        <input type="text" id="symptomInput" placeholder="e.g. I have headache and fever..." />
-        <button onclick="checkSymptoms()">Suggest</button>
-      </div>
-      <div class="ai-result" id="aiResult"></div>
-    </section>
+  <section id="pharmacies" class="section dark">
+    <h2>Nearby Pharmacies</h2>
+    <button id="findPharmBtn" class="btn-outline" onclick="findNearbyPharmacies()">📍 Show Nearby Pharmacies</button>
+    <div id="pharmacyList" class="cards-grid"></div>
+  </section>
 
-    <section class="section" id="results-section" style="display:none;">
-      <h2 class="section-title">Search Results</h2>
-      <div id="results-container"></div>
-      <div id="related-section" style="display:none; margin-top: 24px;">
-        <h3 class="related-title">You may also need</h3>
-        <div class="filter-row" id="filterRow"></div>
-        <div class="related-grid" id="relatedGrid"></div>
-      </div>
-    </section>
+  <section id="map" class="section">
+    <h2>🗺️ Pharmacy Map</h2>
+    <p>See all nearby pharmacies on the map</p>
+    <button class="btn-outline" onclick="showMap()">🗺️ Show Map</button>
+    <div id="map-container" style="width:100%;height:500px;border-radius:16px;margin-top:20px;display:none;"></div>
+  </section>
 
-    <section class="section" id="pharmacies-section">
-      <h2 class="section-title">📍 Nearby Pharmacies</h2>
-      <button id="findPharmBtn" class="btn-outline" onclick="findNearbyPharmacies()">📍 Show Nearby Pharmacies</button>
-      <div id="pharmacies-container" class="pharmacies-grid"></div>
-    </section>
+  <section id="ai" class="section dark">
+    <h2>🤖 AI Medicine Recommendation</h2>
+    <p>Tell us your symptoms and AI will suggest medicines!</p>
+    <div class="emergency-form">
+      <textarea id="symptomsInput" placeholder="Describe your symptoms... (e.g. I have fever, headache and body pain)" rows="3" style="padding:14px 18px;border-radius:10px;border:1px solid #ddd;font-size:1rem;outline:none;font-family:Poppins,sans-serif;resize:none;"></textarea>
+      <button class="btn-emergency" style="background:#1a73e8" onclick="getAIRecommendation()">🤖 Get AI Recommendation</button>
+    </div>
+    <div id="aiResult" style="margin-top:20px;padding:20px;background:white;border-radius:16px;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.08);white-space:pre-line;line-height:1.8;"></div>
+  </section>
 
-    <section class="section" id="map-section">
-      <h2 class="section-title">🗺 Pharmacy Map</h2>
-      <p class="section-sub">See all nearby pharmacies on the map</p>
-      <button class="btn-outline" onclick="showMap()" style="margin-bottom:12px;">🗺 Show Map</button>
-      <div id="map-container" style="height:400px; border-radius:12px; overflow:hidden; display:none;"></div>
-    </section>
-
-    <section class="section emergency-section" id="emergency-section">
-      <h2 class="section-title">🚨 Emergency Contacts</h2>
-      <div class="emergency-grid">
-        <div class="emergency-card">
-          <div class="em-icon">🚑</div>
-          <div class="em-label">Ambulance</div>
-          <a href="tel:108" class="em-number">108</a>
-        </div>
-        <div class="emergency-card">
-          <div class="em-icon">🏥</div>
-          <div class="em-label">Hospital</div>
-          <a href="tel:104" class="em-number">104</a>
-        </div>
-        <div class="emergency-card">
-          <div class="em-icon">💊</div>
-          <div class="em-label">Poison Control</div>
-          <a href="tel:1800-116-117" class="em-number">1800-116-117</a>
-        </div>
-      </div>
-    </section>
-
-  </main>
+  <section id="emergency" class="section">
+    <h2>🚨 Emergency Medicine Request</h2>
+    <p>Can't find your medicine? Send an emergency request to all nearby pharmacies!</p>
+    <div class="emergency-form">
+      <input type="text" id="emergencyMedicine" placeholder="Medicine name" />
+      <input type="text" id="emergencyName" placeholder="Your name" />
+      <input type="text" id="emergencyPhone" placeholder="Your phone number" />
+      <button class="btn-emergency" onclick="sendEmergency()">🚨 Send Emergency Request</button>
+    </div>
+    <div id="emergencyMsg"></div>
+  </section>
 
   <footer>
-    <p>© 2024 MediFind. For informational purposes only.</p>
+    <p>💊 MediFind — Saving lives, one search at a time</p>
   </footer>
 
   <script src="app.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrJtrmqBn_f0HJcqLr-y6SHGRxxoIysDc&callback=initMap"></script>
 </body>
 </html>
