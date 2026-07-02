@@ -1,4 +1,4 @@
-const API = 'https://medicine-finder-production.up.railway.app/api';
+const API = 'https://medicine-finder-gvri.onrender.com/api';
 let map, markers = [], userLocation = null, infoWindow = null;
 
 function renderMedicines(medicines, container) {
