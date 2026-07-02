@@ -32,8 +32,9 @@ io.on('connection', (socket) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB Connected!');
-    server.listen(process.env.PORT || 3000, () => {
-      console.log('✅ Server running!');
+    const PORT = process.env.PORT || 10000;
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`✅ Server running on port ${PORT}`);
     });
   })
   .catch(err => console.log('❌ MongoDB Error:', err));
